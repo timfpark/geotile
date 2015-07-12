@@ -1,0 +1,14 @@
+{
+  "name": "geotile",
+  "homepage": "https://github.com/timfpark/tile",
+  "author": "Tim Park <timfpark@gmail.com>",
+  "version": "0.1.1", 
+  "dependencies": {
+  },
+  "main": "./tile",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timfpark/tile.git"
+  },
+  "license": "MIT"
+}
