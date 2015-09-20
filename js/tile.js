@@ -76,4 +76,35 @@ Tile.tileIndexInZoomLevel = function(row, column, zoom) {
     return Math.pow(2, zoom) * row + column;
 };
 
+Tile.childrenForTile = function(tileId) {
+    var tile = Tile.tileFromTileId(tileId);
+    var midNorthLatitude = (tile.centerLatitude + tile.latitudeNorth) / 2;
+    var midSouthLatitude = (tile.centerLatitude + tile.latitudeSouth) / 2;
+    var midEastLongitude = (tile.centerLongitude + tile.longitudeEast) / 2;
+    var midWestLongitude = (tile.centerLongitude + tile.longitudeWest) / 2;
+    
+    return [
+        Tile.tileIdFromLatLong(midNorthLatitude, midEastLongitude, tile.zoom + 1),
+        Tile.tileIdFromLatLong(midNorthLatitude, midWestLongitude, tile.zoom + 1),
+        Tile.tileIdFromLatLong(midSouthLatitude, midEastLongitude, tile.zoom + 1),
+        Tile.tileIdFromLatLong(midSouthLatitude, midWestLongitude, tile.zoom + 1)        
+    ]
+};
+
+Tile.childrenForTileAtZoom = function(tileId, zoom) {
+     var tileList = Tile.childrenForTile(tileId);
+     console.dir(tileList[0]);
+     while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {          
+         var currentTileId = tileList.shift();
+         var children = Tile.childrenForTile(currentTileId);
+         console.log('children:');
+         console.dir(children);
+         tileList = tileList.concat(children);    
+         console.log('new tile list:');
+         console.dir(tileList);   
+     }  
+  
+     return tileList;
+};
+
 module.exports = Tile;
