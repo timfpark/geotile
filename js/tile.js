@@ -19,13 +19,34 @@ Tile.columnFromLongitude = function(longitude, zoom) {
 };
 
 Tile.latitudeFromRow = function(row, zoom) {
-  var n=Math.PI-2.0*Math.PI*row/Math.pow(2.0,zoom);
-  return (180.0/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+    var n=Math.PI-2.0*Math.PI*row/Math.pow(2.0,zoom);
+    return (180.0/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
 };
 
 Tile.longitudeFromColumn = function(column, zoom) {
-  return (column/Math.pow(2,zoom)*360.0-180.0);
-}
+    return (column/Math.pow(2,zoom)*360.0-180.0);
+};
+
+Tile.tileIdsForBoundingBox = function(latitudeNorth, longitudeWest, latitudeSouth, longitudeEast, zoom) {
+    var tileNWId = Tile.tileIdFromLatLong(latitudeNorth, longitudeWest, zoom);
+    var tileSEId = Tile.tileIdFromLatLong(latitudeSouth, longitudeEast, zoom);
+
+    var tileNW = Tile.tileFromTileId(tileNWId);
+    var tileSE = Tile.tileFromTileId(tileSEId);
+
+    var rowDelta = tileSE.row - tileNW.row;
+    var columnDelta = tileSE.column - tileNW.column;
+
+    var spanningTileIds = [];
+    for (var rowIdx=0; rowIdx < rowDelta; rowIdx++)
+        for (var columnIdx=0; columnIdx < columnDelta; columnIdx++) {
+            spanningTileIds.push(
+                Tile.tileIdFromRowColumn(tileNW.row + rowIdx, tileNW.column + columnIdx, zoom)
+            );
+        }
+    }
+    return spanningTileIds;
+};
 
 Tile.tileFromTileId = function(tileId) {
     var tile = Tile.decodeTileId(tileId);
@@ -82,28 +103,28 @@ Tile.childrenForTile = function(tileId) {
     var midSouthLatitude = (tile.centerLatitude + tile.latitudeSouth) / 2;
     var midEastLongitude = (tile.centerLongitude + tile.longitudeEast) / 2;
     var midWestLongitude = (tile.centerLongitude + tile.longitudeWest) / 2;
-    
+
     return [
         Tile.tileIdFromLatLong(midNorthLatitude, midEastLongitude, tile.zoom + 1),
         Tile.tileIdFromLatLong(midNorthLatitude, midWestLongitude, tile.zoom + 1),
         Tile.tileIdFromLatLong(midSouthLatitude, midEastLongitude, tile.zoom + 1),
-        Tile.tileIdFromLatLong(midSouthLatitude, midWestLongitude, tile.zoom + 1)        
+        Tile.tileIdFromLatLong(midSouthLatitude, midWestLongitude, tile.zoom + 1)
     ]
 };
 
 Tile.childrenForTileAtZoom = function(tileId, zoom) {
      var tileList = Tile.childrenForTile(tileId);
      console.dir(tileList[0]);
-     while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {          
+     while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {
          var currentTileId = tileList.shift();
          var children = Tile.childrenForTile(currentTileId);
          console.log('children:');
          console.dir(children);
-         tileList = tileList.concat(children);    
+         tileList = tileList.concat(children);
          console.log('new tile list:');
-         console.dir(tileList);   
-     }  
-  
+         console.dir(tileList);
+     }
+
      return tileList;
 };
 
