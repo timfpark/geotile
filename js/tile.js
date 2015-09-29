@@ -38,8 +38,8 @@ Tile.tileIdsForBoundingBox = function(latitudeNorth, longitudeWest, latitudeSout
     var columnDelta = tileSE.column - tileNW.column;
 
     var spanningTileIds = [];
-    for (var rowIdx=0; rowIdx < rowDelta; rowIdx++)
-        for (var columnIdx=0; columnIdx < columnDelta; columnIdx++) {
+    for (var rowIdx=0; rowIdx <= rowDelta; rowIdx++) {
+        for (var columnIdx=0; columnIdx <= columnDelta; columnIdx++) {
             spanningTileIds.push(
                 Tile.tileIdFromRowColumn(tileNW.row + rowIdx, tileNW.column + columnIdx, zoom)
             );
