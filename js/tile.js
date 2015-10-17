@@ -114,15 +114,10 @@ Tile.childrenForTile = function(tileId) {
 
 Tile.childrenForTileAtZoom = function(tileId, zoom) {
      var tileList = Tile.childrenForTile(tileId);
-     console.dir(tileList[0]);
      while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {
          var currentTileId = tileList.shift();
          var children = Tile.childrenForTile(currentTileId);
-         console.log('children:');
-         console.dir(children);
          tileList = tileList.concat(children);
-         console.log('new tile list:');
-         console.dir(tileList);
      }
 
      return tileList;
