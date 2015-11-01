@@ -2,13 +2,13 @@ import math
 
 class Tile:
 
-    MAX_ZOOM = 18;
-    MIN_ZOOM = 1;
+    MAX_ZOOM = 16;
+    MIN_ZOOM = 0;
 
     @classmethod
     def tile_id_from_lat_long(cls, latitude, longitude, zoom):
-        row = Tile.row_from_latitude(latitude, zoom)
-        column = Tile.column_from_longitude(longitude, zoom)
+        row = int(Tile.row_from_latitude(latitude, zoom))
+        column = int(Tile.column_from_longitude(longitude, zoom))
 
         return Tile.tile_id_from_row_column(row, column, zoom)
 
@@ -31,7 +31,7 @@ class Tile:
 
     @classmethod
     def tile_from_tile_id(cls, tile_id):
-        parts = tileId.split('_')
+        parts = tile_id.split('_')
         if len(parts) != 3:
             return
 
@@ -55,4 +55,44 @@ class Tile:
 
     @classmethod
     def tile_id_from_row_column(cls, row, column, zoom):
-        return zoom + "_" + row + "_" + column
+        return str(zoom) + "_" + str(row) + "_" + str(column)
+
+    def parent_id(self):
+        return Tile.tile_id_from_lat_long(self.center_latitude, self.center_longitude, self.zoom-1)
+
+    def parent(self):
+        return Tile.tile_from_tile_id(self.parent_id())
+
+    @classmethod
+    def decode_tile_id(cls, tileId):
+        parts = tileId.split('_');
+        if len(parts) != 3:
+            return;
+
+        return {
+            "id": tileId,
+            "zoom": int(parts[0]),
+            "row": int(parts[1]),
+            "column": int(parts[2])
+        };
+
+    @classmethod
+    def tile_ids_for_all_zoom_levels(cls, tileId):
+        tile = Tile.tile_from_tile_id(tileId)
+        tileIds = []
+        for zoom in range(Tile.MAX_ZOOM, Tile.MIN_ZOOM, -1):
+            tileId = Tile.tile_id_from_lat_long(tile.center_latitude, tile.center_longitude, zoom)
+            tileIds.append(tileId)
+        return tileIds
+
+    def children(self):
+        midNorthLatitude = (self.center_latitude + self.latitude_north) / 2;
+        midSouthLatitude = (self.center_latitude + self.latitude_south) / 2;
+        midEastLongitude = (self.center_longitude + self.longitude_east) / 2;
+        midWestLongitude = (self.center_longitude + self.longitude_west) / 2;
+        return [
+            Tile.tile_id_from_lat_long(midNorthLatitude, midEastLongitude, self.zoom + 1),
+            Tile.tile_id_from_lat_long(midNorthLatitude, midWestLongitude, self.zoom + 1),
+            Tile.tile_id_from_lat_long(midSouthLatitude, midEastLongitude, self.zoom + 1),
+            Tile.tile_id_from_lat_long(midSouthLatitude, midWestLongitude, self.zoom + 1)
+        ]
