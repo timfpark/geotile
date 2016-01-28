@@ -63,12 +63,10 @@ Tile.tileFromTileId = function(tileId) {
     return tile;
 };
 
-Tile.tileIdsForAllZoomLevels = function(tileId) {
-	var tile = Tile.tileFromTileId(tileId);
-
+Tile.tileIdsForZoomLevels = function(latitude, longitude, minZoom, maxZoom) {
     var tileIds = [];
-    for (var zoom=Tile.MAX_ZOOM; zoom > Tile.MIN_ZOOM; zoom--) {
-        var tileId = Tile.tileIdFromLatLong(tile.centerLatitude, tile.centerLongitude, zoom);
+    for (var zoom=minZoom; zoom <= maxZoom; zoom++) {
+        var tileId = Tile.tileIdFromLatLong(latitude, longitude, zoom);
         tileIds.push(tileId);
     }
 
@@ -86,7 +84,6 @@ Tile.decodeTileId = function(tileId) {
         row: parseInt(parts[1]),
         column: parseInt(parts[2])
     };
-
 };
 
 Tile.tileIdFromRowColumn = function(row, column, zoom) {
@@ -121,6 +118,21 @@ Tile.childrenForTileAtZoom = function(tileId, zoom) {
      }
 
      return tileList;
+};
+
+Tile.neighborIds = function(tileId) {
+    var decodedId = Tile.decodeTileId(tileId);
+
+    return [
+       Tile.tileIdFromRowColumn(decodedId.row,   decodedId.column+1, decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column+1, decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column,   decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column-1, decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row,   decodedId.column-1, decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column-1, decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column,   decodedId.zoom),
+       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column+1, decodedId.zoom),
+    ];
 };
 
 module.exports = Tile;
