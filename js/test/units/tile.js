@@ -3,13 +3,6 @@
 var assert = require('assert')
   , Tile = require('../../tile');
 
-function assertArrayEqual(result, truth) {
-    assert.equal(result.length, truth.length);
-    for (let idx=0; idx < truth.length; idx++) {
-        assert.equal(result[idx], truth[idx]);
-    }
-}
-
 describe('geotile', function() {
 
     it('can map latitude, longitude, zoom level to tileId', function(done) {
@@ -39,7 +32,7 @@ describe('geotile', function() {
     it('can get tile ids for a range of zoom levels', function(done) {
         let tileIds = Tile.tileIdsForZoomLevels(36.9719, -122.0264, 10, 12);
 
-        assertArrayEqual(tileIds, [
+        assert.deepEqual(tileIds, [
             '10_398_164',
             '11_797_329',
             '12_1594_659'
@@ -56,7 +49,7 @@ describe('geotile', function() {
             west: -122.34
         }, 11);
 
-        assertArrayEqual(tileIds, [
+        assert.deepEqual(tileIds, [
             '11_796_328',
             '11_796_329',
             '11_796_330',
@@ -71,7 +64,7 @@ describe('geotile', function() {
     it('can get children for tile id', function(done) {
         let tileIds = Tile.childrenForTileId('10_398_164');
 
-        assertArrayEqual(tileIds, [
+        assert.deepEqual(tileIds, [
             '11_796_329',
             '11_796_328',
             '11_797_329',
@@ -84,7 +77,7 @@ describe('geotile', function() {
     it('can get children for tile id at a zoom level', function(done) {
         let tileIds = Tile.childrenForTileIdAtZoom('10_398_164', 12);
 
-        assertArrayEqual(tileIds, [
+        assert.deepEqual(tileIds, [
             '12_1592_659',
             '12_1592_658',
             '12_1593_659',
@@ -109,7 +102,7 @@ describe('geotile', function() {
     it('can get neighbors for tile id', function(done) {
        let tileIds = Tile.neighborIds('10_398_164');
 
-       assertArrayEqual(tileIds, [
+       assert.deepEqual(tileIds, [
            '10_398_165',
            '10_399_165',
            '10_399_164',
