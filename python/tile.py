@@ -2,9 +2,6 @@ import math
 
 class Tile:
 
-    MAX_ZOOM = 16;
-    MIN_ZOOM = 0;
-
     @classmethod
     def tile_id_from_lat_long(cls, latitude, longitude, zoom):
         row = int(Tile.row_from_latitude(latitude, zoom))
@@ -77,13 +74,46 @@ class Tile:
         };
 
     @classmethod
-    def tile_ids_for_all_zoom_levels(cls, tileId):
-        tile = Tile.tile_from_tile_id(tileId)
-        tileIds = []
-        for zoom in range(Tile.MAX_ZOOM, Tile.MIN_ZOOM, -1):
-            tileId = Tile.tile_id_from_lat_long(tile.center_latitude, tile.center_longitude, zoom)
-            tileIds.append(tileId)
-        return tileIds
+    def tile_ids_for_zoom_levels(cls, latitude, longitude, min_zoom, max_zoom):
+        tile_id = Tile.tile_id_from_lat_long(latitude, longitude, max_zoom)
+        tile = Tile.tile_from_tile_id(tile_id)
+        tile_ids = []
+        for zoom in range(max_zoom, min_zoom-1, -1):
+            zoom_tile_id = Tile.tile_id_from_lat_long(tile.center_latitude, tile.center_longitude, zoom)
+            tile_ids.append(zoom_tile_id)
+        return tile_ids
+
+    @classmethod
+    def tile_ids_for_bounding_box(cls, bbox, zoom):
+        tile_nw_id = Tile.tile_id_from_lat_long(bbox["north"], bbox["west"], zoom)
+        tile_se_id = Tile.tile_id_from_lat_long(bbox["south"], bbox["east"], zoom)
+
+        tile_nw = Tile.tile_from_tile_id(tile_nw_id)
+        tile_se = Tile.tile_from_tile_id(tile_se_id)
+
+        row_delta = tile_se.row - tile_nw.row
+        column_delta = tile_se.column - tile_nw.column
+
+        spanning_tile_ids = []
+        for row_idx in range(0, row_delta+1):
+             for column_idx in range(0, column_delta+1):
+                 spanning_tile_ids.append(
+                     Tile.tile_id_from_row_column(tile_nw.row + row_idx, tile_nw.column + column_idx, zoom)
+                 );
+
+        return spanning_tile_ids
+
+    def neighbors(self):
+        return [
+            Tile.tile_id_from_row_column(self.row,   self.column+1, self.zoom),
+            Tile.tile_id_from_row_column(self.row+1, self.column+1, self.zoom),
+            Tile.tile_id_from_row_column(self.row+1, self.column,   self.zoom),
+            Tile.tile_id_from_row_column(self.row+1, self.column-1, self.zoom),
+            Tile.tile_id_from_row_column(self.row,   self.column-1, self.zoom),
+            Tile.tile_id_from_row_column(self.row-1, self.column-1, self.zoom),
+            Tile.tile_id_from_row_column(self.row-1, self.column,   self.zoom),
+            Tile.tile_id_from_row_column(self.row-1, self.column+1, self.zoom),
+        ];
 
     def children(self):
         midNorthLatitude = (self.center_latitude + self.latitude_north) / 2;
