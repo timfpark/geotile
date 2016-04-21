@@ -27,9 +27,9 @@ Tile.longitudeFromColumn = function(column, zoom) {
     return (column/Math.pow(2,zoom)*360.0-180.0);
 };
 
-Tile.tileIdsForBoundingBox = function(latitudeNorth, longitudeWest, latitudeSouth, longitudeEast, zoom) {
-    var tileNWId = Tile.tileIdFromLatLong(latitudeNorth, longitudeWest, zoom);
-    var tileSEId = Tile.tileIdFromLatLong(latitudeSouth, longitudeEast, zoom);
+Tile.tileIdsForBoundingBox = function(bbox, zoom) {
+    var tileNWId = Tile.tileIdFromLatLong(bbox.north, bbox.west, zoom);
+    var tileSEId = Tile.tileIdFromLatLong(bbox.south, bbox.east, zoom);
 
     var tileNW = Tile.tileFromTileId(tileNWId);
     var tileSE = Tile.tileFromTileId(tileSEId);
@@ -94,7 +94,7 @@ Tile.tileIndexInZoomLevel = function(row, column, zoom) {
     return Math.pow(2, zoom) * row + column;
 };
 
-Tile.childrenForTile = function(tileId) {
+Tile.childrenForTileId = function(tileId) {
     var tile = Tile.tileFromTileId(tileId);
     var midNorthLatitude = (tile.centerLatitude + tile.latitudeNorth) / 2;
     var midSouthLatitude = (tile.centerLatitude + tile.latitudeSouth) / 2;
@@ -109,11 +109,11 @@ Tile.childrenForTile = function(tileId) {
     ]
 };
 
-Tile.childrenForTileAtZoom = function(tileId, zoom) {
-     var tileList = Tile.childrenForTile(tileId);
+Tile.childrenForTileIdAtZoom = function(tileId, zoom) {
+     var tileList = Tile.childrenForTileId(tileId);
      while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {
          var currentTileId = tileList.shift();
-         var children = Tile.childrenForTile(currentTileId);
+         var children = Tile.childrenForTileId(currentTileId);
          tileList = tileList.concat(children);
      }
 
