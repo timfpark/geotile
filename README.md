@@ -1,27 +1,127 @@
-## geo-tile
+## geotile
 
-Library for mapping latitude / longitude pairs into geographically labeled buckets at different levels of resolution using a low complexity algorithm that makes is suitable for high scale processing. Follows the Open Street Maps / Google Maps algorithm for tile bounding (see http://wiki.openstreetmap.org/wiki/Tiles) making it suitable for use in prerendered map tile calculations as well.
+Library for mapping latitude / longitude pairs into XYZ geo buckets
+at different zoom level resolutions using a low complexity algorithm
+that makes it suitable for high scale processing. Follows the
+Open Street Maps / Google Maps algorithm for tile divisions
+(see http://wiki.openstreetmap.org/wiki/Tiles) for low impedence use with
+those systems.
 
-Available in C#, JavaScript, and Python under the MIT license.
+Available in C#, JavaScript, and Python under the MIT license. Pull requests
+gladly welcomed for other languages.
 
-### Example Usage (JavaScript)
+### Example Usage in JavaScript (for other languages see tests)
 
-#### TileId from Latitude / Longitude / Zoom
+#### Map latitude, longitude, zoom level to tileId
 
-    > var Tile = require('./tile.js');
-    > Tile.tileIdFromLatLong(47.6097,-122.3331,18)
-    '18_91548_41991'
+```
+Tile.tileIdFromLatLong(36.9719, -122.0264, 10);
 
-#### Tile from TileId
+==> '10_398_164'
+```
 
-    > Tile.tileFromTileId('18_91548_41991')
-    { id: '18_91548_41991',
-      zoom: 18,
-      row: 91548,
-      column: 41991,
-      latitudeNorth: 47.60986653003798,
-      latitudeSouth: 47.608940683080164,
-      longitudeWest: -122.33413696289062,
-      longitudeEast: -122.332763671875,
-      centerLatitude: 47.60940360655907,
-      centerLongitude: -122.33345031738281 }
+#### Get tile object from tile id
+
+```
+Tile.tileFromTileId('10_398_164');
+
+==> {
+  id: '10_398_164',
+  zoom: 10,
+  row: 398,
+  column: 164,
+  latitudeNorth: 37.16031654673676,
+  latitudeSouth: 36.87962060502677,
+  longitudeWest: -122.34375,
+  longitudeEast: -121.9921875,
+  centerLatitude: 37.01996857588176,
+  centerLongitude: -122.16796875
+}
+```
+
+#### Get tile ids for a range of zoom levels
+
+```
+Tile.tileIdsForZoomLevels(36.9719, -122.0264, 10, 12);
+
+==> [
+    '10_398_164',
+    '11_797_329',
+    '12_1594_659'
+]
+```
+
+#### Get tile ids for bounding box at zoom level', function(done) {
+
+```
+Tile.tileIdsForBoundingBox({
+    north: 37.16,
+    east: -121.99,
+    south: 36.88,
+    west: -122.34
+}, 11);
+
+==> [
+    '11_796_328',
+    '11_796_329',
+    '11_796_330',
+    '11_797_328',
+    '11_797_329',
+    '11_797_330'
+]
+```
+
+#### Get children for tile id
+
+```
+Tile.childrenForTileId('10_398_164');
+
+==> [
+    '11_796_329',
+    '11_796_328',
+    '11_797_329',
+    '11_797_328'
+]
+```
+
+#### Get children for tile id at a zoom level
+
+```
+Tile.childrenForTileIdAtZoom('10_398_164', 12);
+
+==> [
+    '12_1592_659',
+    '12_1592_658',
+    '12_1593_659',
+    '12_1593_658',
+    '12_1592_657',
+    '12_1592_656',
+    '12_1593_657',
+    '12_1593_656',
+    '12_1594_659',
+    '12_1594_658',
+    '12_1595_659',
+    '12_1595_658',
+    '12_1594_657',
+    '12_1594_656',
+    '12_1595_657',
+    '12_1595_656'
+]
+```
+
+#### Get neighbors for tile id
+
+```
+Tile.neighborIds('10_398_164');
+
+==> [
+    '10_398_165',
+    '10_399_165',
+    '10_399_164',
+    '10_399_163',
+    '10_398_163',
+    '10_397_163',
+    '10_397_164',
+    '10_397_165'
+]
+```
