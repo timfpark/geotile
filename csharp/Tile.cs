@@ -8,21 +8,32 @@ namespace GeoTile
 {
     class Tile
     {
+        public string TileId { get; set; }
+        public UInt64 Row { get; set; }
+        public UInt64 Column { get; set; }
+        public UInt16 Zoom { get; set; }
+        public double LatitudeNorth { get; set; }
+        public double LatitudeSouth { get; set; }
+        public double LongitudeWest { get; set; }
+        public double LongitudeEast { get; set; }
+        public double CenterLatitude { get; set; }
+        public double CenterLongitude { get; set; }
+  
 
         public static String IdFromLatLong(double latitude, double longitude, UInt16 zoom)
         {
-            UInt64 row = Tile.RowFromLatitude(latitude, zoom)
-            UInt64 column = Tile.ColumnFromLongitude(longitude, zoom)
+            UInt64 row = Tile.RowFromLatitude(latitude, zoom);
+            UInt64 column = Tile.ColumnFromLongitude(longitude, zoom);
 
             return Tile.IdFromRowColumn(row, column, zoom);
         }
 
         public static UInt64 RowFromLatitude(double latitude, UInt16 zoom) {
-            return Math.Floor((1 - Math.Log(Math.Tan(latitude * Math.PI / 180) + 1 / math.cos(latitude * Math.PI / 180)) / Math.PI) / 2 * (Math.Pow(2,zoom)))
+            return (ulong) Math.Floor((1 - Math.Log(Math.Tan(latitude * Math.PI / 180) + 1 / Math.Cos(latitude * Math.PI / 180)) / Math.PI) / 2 * (Math.Pow(2,zoom)));
         }
 
         public static UInt64 ColumnFromLongitude(double longitude, UInt16 zoom) {
-            return Math.Floor((longitude + 180.0) / 360.0 * Math.Pow(2, zoom))
+            return (ulong) Math.Floor((longitude + 180.0) / 360.0 * Math.Pow(2, zoom));
         }
 
         public static double LatitudeFromRow(UInt64 row, UInt16 zoom) {
@@ -36,15 +47,15 @@ namespace GeoTile
 
         public static Tile FromTileId(String tileId) {
             string[] parts = tileId.Split('_');
-            if (parts.length() != 3)
-                return;
+            if (parts.Count() != 3)
+                return null;
 
-            Tile tile = new Tile({
+            Tile tile = new Tile(){
                 TileId = tileId,
                 Zoom = Convert.ToUInt16(parts[0]),
                 Row = Convert.ToUInt64(parts[1]),
                 Column = Convert.ToUInt64(parts[2])
-            });
+            };
 
             tile.LatitudeNorth = Tile.LatitudeFromRow(tile.Row, tile.Zoom);
             tile.LatitudeSouth = Tile.LatitudeFromRow(tile.Row + 1, tile.Zoom);
@@ -59,7 +70,7 @@ namespace GeoTile
 
         public static String IdFromRowColumn(UInt64 row, UInt64 column, UInt16 zoom)
         {
-            return zoom + "_" + row + "_" + column
+            return zoom + "_" + row + "_" + column;
         }
     }
 }
