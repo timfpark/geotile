@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace GeoTile
 {
-    class Tile
+    public class BoundingBox
+    {
+        public double LatitudeNorth { get; set; }
+        public double LatitudeSouth { get; set; }
+        public double LongitudeWest { get; set; }
+        public double LongitudeEast { get; set; }
+    }
+    public class Tile
     {
         public string TileId { get; set; }
         public UInt64 Row { get; set; }
@@ -71,6 +78,32 @@ namespace GeoTile
         public static String IdFromRowColumn(UInt64 row, UInt64 column, UInt16 zoom)
         {
             return zoom + "_" + row + "_" + column;
+        }
+
+        public static List<Tile> TileIdsForBoundingBox(BoundingBox bBox, UInt16 zoom)
+        {
+            var tileNWId = Tile.IdFromLatLong(bBox.LatitudeNorth, bBox.LongitudeWest, zoom);
+            var tileSEId = Tile.IdFromLatLong(bBox.LatitudeSouth, bBox.LongitudeEast, zoom);
+
+            var tileNW = Tile.FromTileId(tileNWId);
+            var tileSE = Tile.FromTileId(tileSEId);
+
+            ulong rowDelta = tileSE.Row - tileNW.Row;
+            ulong columnDelta = tileSE.Column - tileNW.Column;
+
+            List<Tile> spanningTileIds = new List<Tile>();
+            for (ulong rowIdx = 0; rowIdx <= rowDelta; rowIdx++)
+            {
+                for (ulong columnIdx = 0; columnIdx <= columnDelta; columnIdx++)
+                {
+                    spanningTileIds.Add(
+                        FromTileId(
+                            IdFromRowColumn(tileNW.Row + rowIdx, tileNW.Column + columnIdx, zoom)
+                            )
+                    );
+                }
+            }
+            return spanningTileIds;
         }
     }
 }
