@@ -84,6 +84,17 @@ class Tile:
         return tile_ids
 
     @classmethod
+    def tile_id_from_bounding_box(cls, north, east, south, west):
+        zoomLevel = 18
+        while zoomLevel >= 0:
+            tileNEId = cls.tile_id_from_lat_long(north, east, zoomLevel)
+            tileSWId = cls.tile_id_from_lat_long(south, west, zoomLevel)
+            if tileNEId == tileSWId:
+                return tileNEId
+            zoomLevel -= 1
+        return "0_0_0"
+
+    @classmethod
     def tile_ids_for_bounding_box(cls, bbox, zoom):
         tile_nw_id = Tile.tile_id_from_lat_long(bbox["north"], bbox["west"], zoom)
         tile_se_id = Tile.tile_id_from_lat_long(bbox["south"], bbox["east"], zoom)

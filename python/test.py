@@ -31,6 +31,16 @@ class TestTile(unittest.TestCase):
             '10_398_164'
       ]);
 
+  def test_tile_id_from_bounding_box(self):
+      tile_id = Tile.tile_id_from_bounding_box(
+          37.15031654673676, 
+          -121.83640625, 
+          37.03009820136812,
+          -121.9821875
+      )
+
+      self.assertEqual(tile_id, '11_796_330');
+
   def test_tile_ids_for_bounding_box(self):
       tile_ids = Tile.tile_ids_for_bounding_box({
           "north": 37.16,
