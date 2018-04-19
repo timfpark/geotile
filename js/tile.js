@@ -11,20 +11,29 @@ Tile.tileIdFromLatLong = function(latitude, longitude, zoom) {
 };
 
 Tile.rowFromLatitude = function(latitude, zoom) {
-    return Math.floor((1-Math.log(Math.tan(latitude*Math.PI/180) + 1/Math.cos(latitude*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))
+    return Math.floor(
+        (1 -
+            Math.log(
+                Math.tan(latitude * Math.PI / 180) +
+                    1 / Math.cos(latitude * Math.PI / 180)
+            ) /
+                Math.PI) /
+            2 *
+            Math.pow(2, zoom)
+    );
 };
 
 Tile.columnFromLongitude = function(longitude, zoom) {
-    return (Math.floor((longitude+180.0)/360.0*Math.pow(2,zoom)));
+    return Math.floor((longitude + 180.0) / 360.0 * Math.pow(2, zoom));
 };
 
 Tile.latitudeFromRow = function(row, zoom) {
-    var n=Math.PI-2.0*Math.PI*row/Math.pow(2.0,zoom);
-    return (180.0/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+    var n = Math.PI - 2.0 * Math.PI * row / Math.pow(2.0, zoom);
+    return 180.0 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 };
 
 Tile.longitudeFromColumn = function(column, zoom) {
-    return (column/Math.pow(2,zoom)*360.0-180.0);
+    return column / Math.pow(2, zoom) * 360.0 - 180.0;
 };
 
 Tile.tileIdsForBoundingBox = function(bbox, zoom) {
@@ -38,10 +47,14 @@ Tile.tileIdsForBoundingBox = function(bbox, zoom) {
     var columnDelta = tileSE.column - tileNW.column;
 
     var spanningTileIds = [];
-    for (var rowIdx=0; rowIdx <= rowDelta; rowIdx++) {
-        for (var columnIdx=0; columnIdx <= columnDelta; columnIdx++) {
+    for (var rowIdx = 0; rowIdx <= rowDelta; rowIdx++) {
+        for (var columnIdx = 0; columnIdx <= columnDelta; columnIdx++) {
             spanningTileIds.push(
-                Tile.tileIdFromRowColumn(tileNW.row + rowIdx, tileNW.column + columnIdx, zoom)
+                Tile.tileIdFromRowColumn(
+                    tileNW.row + rowIdx,
+                    tileNW.column + columnIdx,
+                    zoom
+                )
             );
         }
     }
@@ -65,7 +78,7 @@ Tile.tileFromTileId = function(tileId) {
 
 Tile.tileIdsForZoomLevels = function(latitude, longitude, minZoom, maxZoom) {
     var tileIds = [];
-    for (var zoom=minZoom; zoom <= maxZoom; zoom++) {
+    for (var zoom = minZoom; zoom <= maxZoom; zoom++) {
         var tileId = Tile.tileIdFromLatLong(latitude, longitude, zoom);
         tileIds.push(tileId);
     }
@@ -74,9 +87,8 @@ Tile.tileIdsForZoomLevels = function(latitude, longitude, minZoom, maxZoom) {
 };
 
 Tile.decodeTileId = function(tileId) {
-    var parts = tileId.split('_');
-    if (parts.length !== 3)
-        return;
+    var parts = tileId.split("_");
+    if (parts.length !== 3) return;
 
     return {
         id: tileId,
@@ -102,37 +114,108 @@ Tile.childrenForTileId = function(tileId) {
     var midWestLongitude = (tile.centerLongitude + tile.longitudeWest) / 2;
 
     return [
-        Tile.tileIdFromLatLong(midNorthLatitude, midEastLongitude, tile.zoom + 1),
-        Tile.tileIdFromLatLong(midNorthLatitude, midWestLongitude, tile.zoom + 1),
-        Tile.tileIdFromLatLong(midSouthLatitude, midEastLongitude, tile.zoom + 1),
-        Tile.tileIdFromLatLong(midSouthLatitude, midWestLongitude, tile.zoom + 1)
-    ]
+        Tile.tileIdFromLatLong(
+            midNorthLatitude,
+            midEastLongitude,
+            tile.zoom + 1
+        ),
+        Tile.tileIdFromLatLong(
+            midNorthLatitude,
+            midWestLongitude,
+            tile.zoom + 1
+        ),
+        Tile.tileIdFromLatLong(
+            midSouthLatitude,
+            midEastLongitude,
+            tile.zoom + 1
+        ),
+        Tile.tileIdFromLatLong(
+            midSouthLatitude,
+            midWestLongitude,
+            tile.zoom + 1
+        )
+    ];
 };
 
 Tile.childrenForTileIdAtZoom = function(tileId, zoom) {
-     var tileList = Tile.childrenForTileId(tileId);
-     while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {
-         var currentTileId = tileList.shift();
-         var children = Tile.childrenForTileId(currentTileId);
-         tileList = tileList.concat(children);
-     }
+    var tileList = Tile.childrenForTileId(tileId);
+    while (Tile.tileFromTileId(tileList[0]).zoom !== zoom) {
+        var currentTileId = tileList.shift();
+        var children = Tile.childrenForTileId(currentTileId);
+        tileList = tileList.concat(children);
+    }
 
-     return tileList;
+    return tileList;
 };
 
 Tile.neighborIds = function(tileId) {
     var decodedId = Tile.decodeTileId(tileId);
 
     return [
-       Tile.tileIdFromRowColumn(decodedId.row,   decodedId.column+1, decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column+1, decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column,   decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row+1, decodedId.column-1, decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row,   decodedId.column-1, decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column-1, decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column,   decodedId.zoom),
-       Tile.tileIdFromRowColumn(decodedId.row-1, decodedId.column+1, decodedId.zoom),
+        Tile.tileIdFromRowColumn(
+            decodedId.row,
+            decodedId.column + 1,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row + 1,
+            decodedId.column + 1,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row + 1,
+            decodedId.column,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row + 1,
+            decodedId.column - 1,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row,
+            decodedId.column - 1,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row - 1,
+            decodedId.column - 1,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row - 1,
+            decodedId.column,
+            decodedId.zoom
+        ),
+        Tile.tileIdFromRowColumn(
+            decodedId.row - 1,
+            decodedId.column + 1,
+            decodedId.zoom
+        )
     ];
+};
+
+Tile.commonZoomFromBoundingBox = function(bbox) {
+    let currentZoom = 20;
+
+    while (currentZoom > 0) {
+        let tileNWId = Tile.tileIdFromLatLong(
+            bbox.north,
+            bbox.west,
+            currentZoom
+        );
+        let tileSEId = Tile.tileIdFromLatLong(
+            bbox.south,
+            bbox.east,
+            currentZoom
+        );
+
+        if (tileNWId === tileSEId) return currentZoom;
+
+        currentZoom -= 1;
+    }
+
+    return 0;
 };
 
 module.exports = Tile;

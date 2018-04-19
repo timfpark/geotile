@@ -1,14 +1,19 @@
 {
-  "name": "geotile",
-  "homepage": "https://github.com/timfpark/tile",
-  "author": "Tim Park <timfpark@gmail.com>",
-  "version": "0.1.9",
-  "dependencies": {
-  },
-  "main": "./tile",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/timfpark/tile.git"
-  },
-  "license": "MIT"
+    "name": "geotile",
+    "homepage": "https://github.com/timfpark/geotile",
+    "author": "Tim Park <timfpark@gmail.com>",
+    "version": "0.1.11",
+    "dependencies": {},
+    "main": "./tile",
+    "scripts": {
+        "test": "mocha"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/timfpark/tile.git"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "mocha": "^5.1.1"
+    }
 }
