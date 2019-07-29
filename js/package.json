@@ -2,7 +2,7 @@
     "name": "geotile",
     "homepage": "https://github.com/timfpark/geotile",
     "author": "Tim Park <timfpark@gmail.com>",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "dependencies": {},
     "main": "./tile",
     "scripts": {

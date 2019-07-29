@@ -99,7 +99,8 @@ Tile.decodeTileId = function(tileId) {
 };
 
 Tile.tileIdFromRowColumn = function(row, column, zoom) {
-    return zoom + '_' + row + '_' + column;
+    if (row < 0 || column < 0 || zoom < 0) return null;
+    else return zoom + '_' + row + '_' + column;
 };
 
 Tile.tileIndexInZoomLevel = function(row, column, zoom) {
@@ -192,7 +193,9 @@ Tile.neighborIds = function(tileId) {
             decodedId.column + 1,
             decodedId.zoom
         )
-    ];
+    ].filter(tileId => {
+        return tileId !== null;
+    });
 };
 
 Tile.commonZoomFromBoundingBox = function(bbox) {
