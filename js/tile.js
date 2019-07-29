@@ -12,28 +12,28 @@ Tile.tileIdFromLatLong = function(latitude, longitude, zoom) {
 
 Tile.rowFromLatitude = function(latitude, zoom) {
     return Math.floor(
-        (1 -
+        ((1 -
             Math.log(
-                Math.tan(latitude * Math.PI / 180) +
-                    1 / Math.cos(latitude * Math.PI / 180)
+                Math.tan((latitude * Math.PI) / 180) +
+                    1 / Math.cos((latitude * Math.PI) / 180)
             ) /
                 Math.PI) /
-            2 *
+            2) *
             Math.pow(2, zoom)
     );
 };
 
 Tile.columnFromLongitude = function(longitude, zoom) {
-    return Math.floor((longitude + 180.0) / 360.0 * Math.pow(2, zoom));
+    return Math.floor(((longitude + 180.0) / 360.0) * Math.pow(2, zoom));
 };
 
 Tile.latitudeFromRow = function(row, zoom) {
-    var n = Math.PI - 2.0 * Math.PI * row / Math.pow(2.0, zoom);
-    return 180.0 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+    var n = Math.PI - (2.0 * Math.PI * row) / Math.pow(2.0, zoom);
+    return (180.0 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 };
 
 Tile.longitudeFromColumn = function(column, zoom) {
-    return column / Math.pow(2, zoom) * 360.0 - 180.0;
+    return (column / Math.pow(2, zoom)) * 360.0 - 180.0;
 };
 
 Tile.tileIdsForBoundingBox = function(bbox, zoom) {
@@ -87,7 +87,7 @@ Tile.tileIdsForZoomLevels = function(latitude, longitude, minZoom, maxZoom) {
 };
 
 Tile.decodeTileId = function(tileId) {
-    var parts = tileId.split("_");
+    var parts = tileId.split('_');
     if (parts.length !== 3) return;
 
     return {
@@ -99,7 +99,7 @@ Tile.decodeTileId = function(tileId) {
 };
 
 Tile.tileIdFromRowColumn = function(row, column, zoom) {
-    return zoom + "_" + row + "_" + column;
+    return zoom + '_' + row + '_' + column;
 };
 
 Tile.tileIndexInZoomLevel = function(row, column, zoom) {
